@@ -2,8 +2,9 @@ import os
 import requests
 import asyncio
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
+# Token seedhe load hoga
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 API_URL = "https://example.com" 
 
@@ -28,10 +29,13 @@ async def handle_uid(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         
     await update.message.reply_text(f"✅ UID: {uid} par Auto-Like round poora ho gaya!")
 
-if __name__ == "__main__":
-    app = ApplicationBuilder().token(TOKEN).build()
+def main():
+    # Yeh naye method ke liye sabse best setup hai jo Render par fail nahi hota
+    app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_uid))
-    
-    print("Bot is running...")
-    app.run_polling(close_loop=False)
+    print("Bot is starting...")
+    app.run_polling()
+
+if __name__ == "__main__":
+    main()
