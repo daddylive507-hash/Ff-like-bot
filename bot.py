@@ -1,23 +1,27 @@
 import os
 import requests
-import asyncio
-from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+import time
+import telebot
 
-# Token seedhe load hoga
+# Environment variable se token load hoga
 TOKEN = os.getenv("TELEGRAM_TOKEN")
-API_URL = "https://example.com" 
+API_URL = "https://example.com" # Dummy link
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text("⚡ **Free Fire Auto-Like Bot Active!**\n\nUID message karein, bot automatic likes bhejna shuru kar dega!")
+bot = telebot.TeleBot(TOKEN)
 
-async def handle_uid(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    uid = update.message.text.strip()
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    bot.reply_to(message, "⚡ **Free Fire Auto-Like Bot Active!**\n\nUID message karein, bot automatic likes bhejna shuru kar dega!")
+
+@bot.message_handler(func=lambda message: True)
+def handle_uid(message):
+    uid = message.text.strip()
+    
     if not uid.isdigit() or len(uid) < 5:
-        await update.message.reply_text("❌ Kripya ek valid Free Fire UID bhejein.")
+        bot.reply_to(message, "❌ Kripya ek valid Free Fire UID bhejein.")
         return
         
-    await update.message.reply_text(f"🚀 UID: {uid} par Auto-Like Process shuru ho gaya hai...")
+    bot.reply_to(message, f"🚀 UID: {uid} par Auto-Like Process shuru ho gaya hai...")
     
     for i in range(1, 11): 
         try:
@@ -25,17 +29,10 @@ async def handle_uid(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             requests.get(API_URL, params=payload, timeout=10)
         except:
             pass
-        await asyncio.sleep(4) 
+        time.sleep(4) 
         
-    await update.message.reply_text(f"✅ UID: {uid} par Auto-Like round poora ho gaya!")
-
-def main():
-    # Yeh naye method ke liye sabse best setup hai jo Render par fail nahi hota
-    app = Application.builder().token(TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_uid))
-    print("Bot is starting...")
-    app.run_polling()
+    bot.reply_to(message, f"✅ UID: {uid} par Auto-Like round poora ho gaya!")
 
 if __name__ == "__main__":
-    main()
+    print("Bot is running...")
+    bot.infinity_polling()
